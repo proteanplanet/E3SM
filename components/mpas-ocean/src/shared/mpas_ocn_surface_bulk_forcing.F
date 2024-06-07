@@ -580,12 +580,15 @@ contains
 
            ! Accumulate fluxes that use the freezing point
 ! mrp performance note: should call ocn_freezing_temperature just once here
-           seaIceTemperatureFlux(iCell) = seaIceFreshWaterFlux(iCell) * &
-               ocn_freezing_temperature( tracerGroup(index_salinity_flux, minLevelCell(iCell), iCell), pressure=0.0_RKIND, &
-                                         inLandIceCavity=.false.) / rho_sw
-           icebergTemperatureFlux(iCell) = icebergFreshWaterFlux(iCell) * &
-               ocn_freezing_temperature( tracerGroup(index_salinity_flux, minLevelCell(iCell), iCell), pressure=0.0_RKIND, &
-                                         inLandIceCavity=.false.) / rho_sw
+!           seaIceTemperatureFlux(iCell) = seaIceFreshWaterFlux(iCell) * &
+!               ocn_freezing_temperature( tracerGroup(index_salinity_flux, minLevelCell(iCell), iCell), pressure=0.0_RKIND, &
+!                                         inLandIceCavity=.false.) / rho_sw
+!           icebergTemperatureFlux(iCell) = icebergFreshWaterFlux(iCell) * &
+!               ocn_freezing_temperature( tracerGroup(index_salinity_flux, minLevelCell(iCell), iCell), pressure=0.0_RKIND, &
+!                                         inLandIceCavity=.false.) / rho_sw
+
+           seaIceTemperatureFlux(iCell) = seaIceFreshWaterFlux(iCell) * tracerGroup(index_temperature_flux,minLevelCell(iCell),iCell) / rho_sw
+           icebergTemperatureFlux(iCell) = icebergFreshWaterFlux(iCell) * tracerGroup(index_temperature_flux,minLevelCell(iCell),iCell) / rho_sw
 
            surfaceTemperatureFluxWithoutRunoff = rainTemperatureFlux(iCell) + evapTemperatureFlux(iCell) + &
                                                  seaIceTemperatureFlux(iCell) + icebergTemperatureFlux(iCell)
