@@ -5145,8 +5145,6 @@ contains
              absorbedShortwaveFlux(iCell)       = absorbedShortwaveFlux(iCell)       * iceAreaInverse
              longwaveUp(iCell)                  = longwaveUp(iCell)                  * iceAreaInverse
              evaporativeWaterFlux(iCell)        = evaporativeWaterFlux(iCell)        * iceAreaInverse
-             atmosReferenceTemperature2m(iCell) = atmosReferenceTemperature2m(iCell) * iceAreaInverse
-             atmosReferenceHumidity2m(iCell)    = atmosReferenceHumidity2m(iCell)    * iceAreaInverse
              oceanFreshWaterFlux(iCell)         = oceanFreshWaterFlux(iCell)         * iceAreaInverse
              oceanSaltFlux(iCell)               = oceanSaltFlux(iCell)               * iceAreaInverse
              oceanHeatFlux(iCell)               = oceanHeatFlux(iCell)               * iceAreaInverse
