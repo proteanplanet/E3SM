@@ -40,6 +40,18 @@ For changes to Icepack, please consult the [CICE Consortium's recommendations fo
 
 To access the column physics in Icepack, MPAS-seaice uses methods defined in ``icepack_intfc.F90``. The 'init' and 'query' methods are used to set and retrieve Icepack values. A 'write' method is also available for documenting these values. MPAS-seaice follows the 'icepack_warnings' methodology where ``icepack_warnings_aborted`` is checked and ``icepack_warnings_flush`` is called after every call to an Icepack method. It does not directly “use” Icepack data, accessing Icepack data only through these interfaces.
 
+### Physical constants
+
+MPAS-Seaice centralizes its constants in ``src/shared/mpas_seaice_constants.F``. Values that represent shared physical references are imported from E3SM's PhysicalConstantsDictionary (PCD) and mapped to SeaIce names there. SeaIce-specific parameters, such as snow density, and values not currently available in PCD remain defined locally; PCD is not intended to replace every model parameter.
+
+The SeaIce constants module passes the applicable values into Icepack through ``icepack_init_parameters`` in ``mpas_seaice_icepack.F``. Icepack does not depend directly on PCD: it receives values through its public initialization interface, and callers that omit optional inputs continue to use Icepack's defaults. For example, MPAS-Seaice passes PCD's latent heat of fusion explicitly; otherwise Icepack derives it as the latent heat of sublimation minus the latent heat of vaporization. Some quantities are converted or derived while mapping them, so follow the units in the receiving code (for example, carbon and iron molar masses are stored in PCD in kg/mol and converted to g/mol for SeaIce).
+
+The iron molar-mass entry is based on NIST's standard atomic weight for naturally occurring iron, 55.845(2), and is recorded in PCD as 0.055845 kg/mol with an absolute uncertainty of 0.000002 kg/mol. SeaIce converts this to g/mol for its biogeochemistry calculations.
+
+Other sea-ice quantities remain at their existing model values rather than being added to PCD. Snow density and thermal properties are parameterized model choices, seawater freezing temperature depends on state (including salinity and pressure), and brine viscosity is state- and formulation-dependent. The von Kármán constant is empirical and can depend on the turbulence formulation. These quantities therefore do not have a single generally applicable reference value to standardize here; this work leaves their existing SeaIce and Icepack values unchanged.
+
+The CIME build compiles PCD through E3SM's shared ``share/util`` sources. The separate MPAS-Seaice Make build compiles the same PCD source as a prerequisite of ``mpas_seaice_constants.F``; it should not add another PCD source to the CIME component source list.
+
 Basic Icepack development can be done in standalone mode using Icepack's testing scripts, directly in the submodule branch in MPAS-seaice. **We recommend that Icepack developments be thoroughly tested within E3SM's coupled framework throughout the development process, including fully coupled simulations.**
 
 ## E3SM-Polar-Developer Script

@@ -37,6 +37,7 @@ module pcd
     !chemical_molar_masses constants
     real(dp), parameter :: carbon_molar_mass_reference = 0.0120107_dp               ! [kg mol-1] IUPAC1997
     real(dp), parameter :: oxygen_molar_mass_reference = 0.0159994_dp               ! [kg mol-1] IUPAC1997
+    real(dp), parameter :: iron_molar_mass_reference = 0.055845_dp                    ! [kg mol-1] NIST_SRD144
     real(dp), parameter :: carbon_dioxide_molar_mass_reference = &
         &(carbon_molar_mass_reference + (2.0_dp * oxygen_molar_mass_reference))     ! [kg mol-1]
 
