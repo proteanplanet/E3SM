@@ -48,6 +48,8 @@ The SeaIce constants module passes the applicable values into Icepack through ``
 
 The iron molar-mass entry is based on NIST's standard atomic weight for naturally occurring iron, 55.845(2), and is recorded in PCD as 0.055845 kg/mol with an absolute uncertainty of 0.000002 kg/mol. SeaIce converts this to g/mol for its biogeochemistry calculations.
 
+PCD's ``seconds_per_day`` defines the fixed day unit as exactly 86400 SI seconds, following [NIST SP 330 (2019), Section 4, Table 8](https://doi.org/10.6028/NIST.SP.330-2019). SeaIce maps this to ``seaiceSecondsPerDay`` and passes it to Icepack through the existing optional ``secday_in`` argument. Icepack retains its 86400-second default for callers that omit this input. This conversion is not a sidereal day or a UTC day containing a leap second. The reciprocal remains derived from it, and ``seaiceSecondsPerYear`` retains its existing fixed 365-day convention; calendar handling is unchanged.
+
 Other sea-ice quantities remain at their existing model values rather than being added to PCD. Snow density and thermal properties are parameterized model choices, seawater freezing temperature depends on state (including salinity and pressure), and brine viscosity is state- and formulation-dependent. The von Kármán constant is empirical and can depend on the turbulence formulation. These quantities therefore do not have a single generally applicable reference value to standardize here; this work leaves their existing SeaIce and Icepack values unchanged.
 
 The CIME build compiles PCD through E3SM's shared ``share/util`` sources. The separate MPAS-Seaice Make build compiles the same PCD source as a prerequisite of ``mpas_seaice_constants.F``; it should not add another PCD source to the CIME component source list.

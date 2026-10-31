@@ -15,6 +15,7 @@ module seaice_constants
   ! Map shared physical references from PCD here; SeaIce-specific settings and
   ! quantities not yet represented in PCD remain defined locally below.
   use pcd, only : pcd_pi => pi, &
+       pcd_seconds_per_day => seconds_per_day, &
        pcd_gravity => standard_acceleration_of_gravity, &
        pcd_ice_density => sea_ice_density_reference, &
        pcd_seawater_density => seawater_density_reference, &
@@ -42,7 +43,7 @@ module seaice_constants
   real (kind=RKIND), parameter, public :: &
   ! fundamental constants
        pi                              = pcd_pi           ,&! pi
-       seaiceSecondsPerDay             = 24.0_RKIND * 3600.0_RKIND ! seconds in calendar day
+       seaiceSecondsPerDay             = pcd_seconds_per_day ! fixed day unit (s), NIST SP 330
 
   real (kind=RKIND), public :: &
        seaiceGravity                   = pcd_gravity      ,&! gravitational acceleration (m/s^2)
@@ -78,7 +79,7 @@ module seaice_constants
        pii                                = pi, &    ! replace pii with seaicePi elsewhere (might need to be parameter)
        seaiceDegreesToRadians             = pi / 180.0_RKIND, &
        seaiceRadiansToDegrees             = 180.0_RKIND / pi, &
-       seaiceSecondsPerYear               = 24.0_RKIND * 3600.0_RKIND * 365.0_RKIND, & ! incorrect for leap years
+       seaiceSecondsPerYear               = seaiceSecondsPerDay * 365.0_RKIND, & ! fixed 365-day year; not calendar-aware
        seaiceDaysPerSecond                = 1.0_RKIND/seaiceSecondsPerDay
 
   real (kind=RKIND), public :: &
