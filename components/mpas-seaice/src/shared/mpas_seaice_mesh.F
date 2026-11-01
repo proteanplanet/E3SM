@@ -84,9 +84,7 @@ contains
        domain)!{{{
 
     use mpas_stream_manager
-#ifdef MPAS_ESM_SHR_CONST
     use seaice_constants, only : seaiceEarthRadius
-#endif
 
     type (domain_type), intent(inout) :: &
          domain !< Input/Output:
@@ -157,6 +155,8 @@ contains
 
     call MPAS_pool_get_config(domain % blocklist % configs, "config_do_restart", config_do_restart)
     call MPAS_pool_get_config(domain % blocklist % configs, "config_earth_radius", earthRadius)
+
+     if (earthRadius <= 0.0_RKIND) earthRadius = seaiceEarthRadius
 
 #ifdef MPAS_ESM_SHR_CONST
     ! Enforce the ocean/Omega radius before rescaling or accepting a restart.

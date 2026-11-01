@@ -318,10 +318,12 @@ Default: Defined in namelist_defaults.xml
 <entry id="config_earth_radius" type="real"
 	category="initialize" group="initialize">
 Spherical mesh radius in m. E3SM spherical runs require the PCD GRS80 mean
-radius, approximately 6371008.771366666 m, consistent with Omega.
+radius, consistent with Omega. Nonpositive values select seaiceEarthRadius
+from PCD before initialization and restart validation.
 
-Valid values: PCD mean radius for E3SM spherical runs; standalone idealized runs
-may use any positive real number. Planar meshes are not rescaled.
+Valid values: Any nonpositive real number selects the PCD default. Explicit
+positive radii must match PCD for E3SM spherical runs; standalone idealized
+runs may use any positive real number. Planar meshes are not rescaled.
 Default: Defined in namelist_defaults.xml
 </entry>
 

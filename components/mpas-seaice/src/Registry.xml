@@ -456,9 +456,9 @@
 		/>
 	</nml_record>
 	<nml_record name="initialize" in_defaults="true">
-		<nml_option name="config_earth_radius" type="real" default_value="6371008.771366666" units="m"
-			description="Spherical mesh radius in m. E3SM spherical runs require the PCD GRS80 mean radius; standalone idealized runs may override it."
-			possible_values="Any positive real number."
+		<nml_option name="config_earth_radius" type="real" default_value="0.0" units="m"
+			description="Spherical mesh radius in m. Nonpositive values use seaiceEarthRadius from PCD. Explicit E3SM spherical radii must match this reference."
+			possible_values="Nonpositive for the PCD default; positive overrides for standalone idealized runs or the PCD reference for E3SM spherical runs."
 		/>
 		<nml_option name="config_initial_condition_type" type="character" default_value="cice_default" units="unitless"
 			description="Initial condition type for sea ice state."

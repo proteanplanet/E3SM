@@ -44,6 +44,19 @@ To access the column physics in Icepack, MPAS-seaice uses methods defined in ``i
 
 MPAS-Seaice centralizes its constants in ``src/shared/mpas_seaice_constants.F``. Values that represent shared physical references are imported from E3SM's PhysicalConstantsDictionary (PCD) and mapped to SeaIce names there. SeaIce-specific parameters, such as snow density, and values not currently available in PCD remain defined locally; PCD is not intended to replace every model parameter.
 
+These mappings update MPAS-Seaice and the values it supplies to Icepack only;
+they do not update MPAS-Ocean, the coupler, or ``shr_const_mod``. Coupled
+SeaIce retains ``SHR_CONST_G`` for gravity to preserve agreement with ocean
+and coupler gravity. Standalone SeaIce uses PCD's standard acceleration of
+gravity. Adopting a shared Earth-radius convention requires separate,
+coordinated input-data preparation.
+
+Other PCD mappings, including heat capacities, latent heats, rotation rate,
+thermal conductivity, densities, and gas constants, are sea-ice-local choices.
+They can differ from the values used elsewhere in E3SM; this integration does
+not claim model-wide agreement or bit-for-bit equivalence. Coupled heat and
+mass conservation with these choices still requires supported-machine testing.
+
 The SeaIce constants module passes the applicable values into Icepack through ``icepack_init_parameters`` in ``mpas_seaice_icepack.F``. Icepack does not depend directly on PCD: it receives values through its public initialization interface, and callers that omit optional inputs continue to use Icepack's defaults. For example, MPAS-Seaice passes PCD's latent heat of fusion explicitly; otherwise Icepack derives it as the latent heat of sublimation minus the latent heat of vaporization. Some quantities are converted or derived while mapping them, so follow the units in the receiving code (for example, carbon and iron molar masses are stored in PCD in kg/mol and converted to g/mol for SeaIce).
 
 The iron molar-mass entry is based on NIST's standard atomic weight for naturally occurring iron, 55.845(2), and is recorded in PCD as 0.055845 kg/mol with an absolute uncertainty of 0.000002 kg/mol. SeaIce converts this to g/mol for its biogeochemistry calculations.
@@ -54,14 +67,23 @@ Other sea-ice quantities remain at their existing model values rather than being
 
 The CIME build compiles PCD through E3SM's shared ``share/util`` sources. The separate MPAS-Seaice Make build compiles the same PCD source as a prerequisite of ``mpas_seaice_constants.F``; it should not add another PCD source to the CIME component source list.
 
+The ``seconds_per_day`` and ``iron_molar_mass_reference`` imports require
+[PhysicalConstantsDictionary PR #23](https://github.com/E3SM-Project/PhysicalConstantsDictionary/pull/23)
+to merge and be synchronized into E3SM by the PCD bot before this integration
+can build. Do not hand-edit the bundled dictionary or generated PCD sources
+to supply these entries. The optional fusion-heat input also requires
+[Icepack PR #53](https://github.com/E3SM-Project/Icepack/pull/53).
+
 ### Spherical Earth radius
 
 SeaIce's ``seaiceEarthRadius`` and the shared ``SHR_CONST_REARTH`` use PCD's
-GRS80 ``mean_radius``, approximately 6371008.771366666 m. This is the arithmetic
+GRS80 ``mean_radius``. This is the arithmetic
 mean of the reference ellipsoid's two equatorial axes and polar axis, not the
 equal-area or equal-volume sphere radius. It matches
 [Omega's Earth-radius convention](https://github.com/E3SM-Project/Omega/blob/develop/components/omega/src/ocn/GlobalConstants.h).
-Both SeaIce configuration defaults must track this PCD value.
+Both SeaIce configuration defaults are a zero sentinel. Any nonpositive
+``config_earth_radius`` resolves to ``seaiceEarthRadius`` at runtime before
+initialization or restart validation, avoiding copies of the PCD radius in XML.
 
 E3SM spherical SeaIce runs reject a ``config_earth_radius`` that differs from
 this reference by more than a relative tolerance of 1e-8. The tolerance is
@@ -82,9 +104,9 @@ E3SM MPAS-Ocean forward and analysis runs also reject spherical input meshes
 whose radius differs from the shared PCD reference. Standalone ocean builds
 retain their existing behavior. Ocean input geometry must be generated or
 migrated consistently: coordinates, lengths, areas, and radius metadata must
-agree. When enabled, the existing MPAS-Ocean init-mode sphere expansion uses the
-PCD radius in E3SM builds; standalone init-mode expansion retains its legacy
-radius. Forward and analysis modes do not automatically migrate input geometry.
+agree. MPAS-Ocean init mode is unchanged; it is no longer maintained and this
+work does not use it to migrate inputs. Forward and analysis modes do not
+automatically migrate input geometry.
 Omega likewise checks its input mesh against PCD. Changing metadata alone
 does not migrate geometry. Ocean and SeaIce datasets and any area-dependent
 coupling inputs must be reviewed together.
@@ -94,6 +116,15 @@ Coupler diagnostics convert these areas back to square meters using
 ``SHR_CONST_REARTH``. Mapping the shared radius to PCD aligns this convention, but
 also changes other shared-radius consumers across E3SM. This is a non-bit-for-bit
 geometry change, not just a SeaIce diagnostic change.
+
+The source-only ``proteanplanet/seaice/earth-radius`` branch is retained for
+issue-based coordination rather than a new PR. It is not ready for integration
+until a coordinated input-data migration is included. Coordinate its design
+with Xylar
+before implementing it. Provide new versions of every supported MPAS-Ocean
+initial condition and the MPAS-SeaIce inputs that require conversion, update
+their input-data references, and review affected domain and mapping datasets.
+Mesh conversion is not a validated migration of conserved restart state.
 
 Before production use, validate migrated ocean/ice input geometry and normalized
 coupler areas, then run existing coupled restart, conservation, MPI-layout, and

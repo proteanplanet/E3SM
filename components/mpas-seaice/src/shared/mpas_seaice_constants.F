@@ -12,6 +12,9 @@
 module seaice_constants
 
   use mpas_derived_types
+#ifdef CCSMCOUPLED
+     use shr_const_mod, only : SHR_CONST_G
+#endif
   ! Map shared physical references from PCD here; SeaIce-specific settings and
   ! quantities not yet represented in PCD remain defined locally below.
   use pcd, only : pcd_pi => pi, &
@@ -48,9 +51,14 @@ module seaice_constants
        seaiceEarthRadius               = pcd_earth_radius ! GRS80 mean Earth radius (m)
 
   real (kind=RKIND), public :: &
-       seaiceGravity                   = pcd_gravity      ,&! gravitational acceleration (m/s^2)
+#ifdef CCSMCOUPLED
+     seaiceGravity                   = SHR_CONST_G
+#else
+     seaiceGravity                   = pcd_gravity
+#endif
 
   ! physical constants
+  real (kind=RKIND), public :: &
        seaiceDensityIce                = pcd_ice_density  ,&! density of ice (kg/m^3)
        seaiceDensitySeaWater           = pcd_seawater_density,&! density of seawater (kg/m^3)
        seaiceDensityFreshwater         = pcd_freshwater_density,&! density of fresh water (kg/m^3)
